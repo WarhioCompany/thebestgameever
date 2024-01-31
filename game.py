@@ -82,19 +82,6 @@ class Game:
 
             if self.state == "home":
                 self.draw_home()
-                # TODO: wtf is happening here?? xdddd
-                # if 260 <= self.world.player_in_room.pos[0]:
-                #     self.world.player_in_room.update(t)
-                # else:
-                #     self.world.player_in_room.pos[0] += 2
-                #     self.world.player_in_room.pos[1] = 802.8
-                #
-                # if self.world.player_in_room.pos[0] <= 1659.6:
-                #     self.world.player.update(t)
-                # else:
-                #     self.world.player_in_room.pos[0] -= 2
-                #     self.world.player_in_room.pos[1] = 802.8
-
                 self.world.player_in_room.update(t)
 
                 keys = pygame.key.get_pressed()
@@ -110,7 +97,9 @@ class Game:
             if self.state == "game":
                 # Создание мира, отрисовка спрайтов и карты
                 self.world.create(t)
+
                 self.generate_enemies()
+
                 if pygame.mouse.get_focused():
                     self.enemy_sprites.update(self.world.player.pos, act_word)
                 if activ:
@@ -119,16 +108,17 @@ class Game:
                     act_word = ""
                     data = []
                     for i in self.enemy_sprites.sprites():
-                        data.append((i.name, i.distance, x))
+                        data.append((i.name, i.distance, self.x))
                     keyboard.set_active_words(data)
                 self.enemy_sprites.draw(self.screen)
+
                 if self.world.timer <= 0:
                     self.state = "home"
+
             pygame.display.flip()
             pygame.display.update()
 
-
-def x(q):
-    global activ, act_word
-    activ = True
-    act_word = q
+    def x(self, q):
+        global activ, act_word
+        activ = True
+        act_word = q

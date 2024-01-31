@@ -19,7 +19,6 @@ class World:
 
     def create(self, t):
         self.surface.fill("black")
-        self.surface.blit(self.player.image, (0, 0))
         self.all_sprites.draw(self.surface)
         self.all_sprites.update(t)
         self.update_timer()
