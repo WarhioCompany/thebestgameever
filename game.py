@@ -7,6 +7,7 @@ from config_file.config_game import *
 from world import World
 import sqlite3
 
+activ, act_word = True, ""
 
 class Game:
     def __init__(self):
@@ -44,6 +45,7 @@ class Game:
         self.world.room_sprites.draw(self.screen)
         keys = pygame.key.get_pressed()
         self.world.shop.handle_collide(self.world.player_in_room.pos)
+        self.world.player.speed = 400 * self.world.shop.get_upgrade_level()[0]
         pygame.display.update()
         pygame.display.flip()
 
@@ -55,6 +57,7 @@ class Game:
             self.gen = False
 
     def start_game(self):
+        global activ, act_word
         keyboard = Keyboard()
         data = []
         activ = True
