@@ -5,7 +5,8 @@ class Player(pygame.sprite.Sprite):
     def __init__(self, skin, pos, group, screen_size, size_factor=1, restrict_vertical_movement=False):
         super().__init__(group)
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load(f"data/images/{skin}.png").convert_alpha()
+        self.original_image = pygame.image.load(f"data/images/{skin}.png").convert_alpha()
+        self.image = self.original_image
         # Загружаем изображение игрока
         self.rect = self.image.get_rect(center=pos)
         self.z = 7
@@ -17,7 +18,8 @@ class Player(pygame.sprite.Sprite):
         self.speed = 400
 
         # Увеличиваем размер спрайта
-        self.set_size(size_factor)
+        self.size_factor = size_factor
+        self.set_size()
 
         self.restrict_vertical_movement = restrict_vertical_movement
 
@@ -43,6 +45,17 @@ class Player(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
+        self.update_image()
+
+    def update_image(self):
+        if self.direction.x == -1:
+            self.image = pygame.transform.flip(self.original_image, True, False)
+        elif self.direction.x == 1:
+            self.image = self.original_image
+        else:
+            return
+        self.set_size()
+
     def move(self, t):
         # Перемещение игрока по полю
         new_pos = self.pos + self.direction * self.speed * t
@@ -60,7 +73,8 @@ class Player(pygame.sprite.Sprite):
         self.movement()
         self.move(t)
 
-    def set_size(self, k):
+    def set_size(self):
         size = self.image.get_size()
-        bigger_img = pygame.transform.scale(self.image, (int(size[0] * k), int(size[1] * k)))
+        bigger_img = pygame.transform.scale(self.image, (int(size[0] * self.size_factor),
+                                                                  int(size[1] * self.size_factor)))
         self.image = bigger_img

@@ -35,7 +35,7 @@ class Game:
 
     def draw_home(self):
         if self.settings:
-            self.world.player_in_room.pos = (self.screen.get_size()[0] / 2, 660)
+            self.world.player_in_room.pos = (self.screen.get_size()[0] / 2, 615)
             self.settings = False
         self.screen.fill((0, 0, 0))
         #print(self.world.player_in_room.pos)
