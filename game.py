@@ -7,14 +7,17 @@ from config_file.config_game import *
 from world import World
 import sqlite3
 
-activ, act_word = True, ""
+activ = True
+act_word = ""
+
 
 class Game:
     def __init__(self):
         pygame.init()
         self.con = sqlite3.connect('data/game.sqlite3')
         self.cur = self.con.cursor()
-        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT), pygame.RESIZABLE)
+        self.screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT),
+                                              pygame.RESIZABLE)
         # Задаём параметры экрана
         self.clock = pygame.time.Clock()
         self.enemy_sprites = pygame.sprite.Group()
@@ -26,12 +29,17 @@ class Game:
 
     def draw_start_menu(self):
         self.screen.fill((0, 0, 0))
+
         font = pygame.font.SysFont('arial', 40)
         title = font.render('Игра', True, (255, 255, 255))
+
         start_button = font.render('Начать - [пробел]', True, (255, 255, 255))
-        self.screen.blit(title, (SCREEN_WIDTH / 2 - title.get_width() / 2, SCREEN_HEIGHT / 2 - title.get_height() / 2))
-        self.screen.blit(start_button, (
-            SCREEN_WIDTH / 2 - start_button.get_width() / 2, SCREEN_HEIGHT / 2 + start_button.get_height() / 2))
+        self.screen.blit(title,
+                         (SCREEN_WIDTH / 2 - title.get_width() / 2,
+                          SCREEN_HEIGHT / 2 - title.get_height() / 2))
+        self.screen.blit(start_button,
+                         (SCREEN_WIDTH / 2 - start_button.get_width() / 2,
+                          SCREEN_HEIGHT / 2 + start_button.get_height() / 2))
         pygame.display.update()
 
     def draw_home(self):
@@ -91,7 +99,8 @@ class Game:
                 if keys[pygame.K_ESCAPE]:
                     self.state = "game"
                     self.world.timer = 15
-                    self.world.player.pos = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+                    self.world.player.pos = (SCREEN_WIDTH // 2,
+                                             SCREEN_HEIGHT // 2)
                     self.night += 1
                     self.gen = True
                     print("Ночь номер:", self.night)
@@ -104,10 +113,12 @@ class Game:
                 self.generate_enemies()
 
                 if pygame.mouse.get_focused():
-                    self.enemy_sprites.update(self.world.player.pos, act_word)
+                    self.enemy_sprites.update(self.world.player.pos,
+                                              act_word)
                 if activ:
                     activ = False
-                    self.enemy_sprites.update(self.world.player.pos, act_word)
+                    self.enemy_sprites.update(self.world.player.pos,
+                                              act_word)
                     act_word = ""
                     data = []
                     for i in self.enemy_sprites.sprites():

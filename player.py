@@ -59,14 +59,21 @@ class Player(pygame.sprite.Sprite):
     def move(self, t):
         # Перемещение игрока по полю
         new_pos = self.pos + self.direction * self.speed * t
-        x = new_pos[0] #+ self.image.get_size()[0] / 1.5
-        y = new_pos[1] #+ self.image.get_size()[1] / 1.5
-        if not (self.image.get_size()[0] / 4 <= x <= self.screen_size[0] - self.image.get_size()[0] / 1.5):
+
+        x = new_pos[0]
+        y = new_pos[1]
+
+        min_x = self.image.get_size()[0] / 4
+        min_y = self.image.get_size()[1] / 4
+        max_x = self.screen_size[0] - self.image.get_size()[0] / 1.5
+        max_y = self.screen_size[1] - self.image.get_size()[1] / 1.5
+
+        if not (min_x <= x <= max_x):
             return
-        elif not (self.image.get_size()[1] / 4 <= y <= self.screen_size[1] - self.image.get_size()[1] / 1.5):
+        elif not (min_y <= y <= max_y):
             return
 
-        self.pos = new_pos#+= self.direction * self.speed * t
+        self.pos = new_pos
         self.rect.center = self.pos
 
     def update(self, t):
@@ -75,6 +82,7 @@ class Player(pygame.sprite.Sprite):
 
     def set_size(self):
         size = self.image.get_size()
-        bigger_img = pygame.transform.scale(self.image, (int(size[0] * self.size_factor),
-                                                                  int(size[1] * self.size_factor)))
+        bigger_img = pygame.transform.scale(self.image,
+                                            (int(size[0] * self.size_factor),
+                                             int(size[1] * self.size_factor)))
         self.image = bigger_img

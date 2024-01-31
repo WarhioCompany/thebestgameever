@@ -16,27 +16,20 @@ class Shop:
         self.clock = pygame.time.Clock()
 
     def handle_collide(self, player_pos):
-        # keys = pygame.key.get_pressed()
-        # if keys[pygame.K_e]:
-        #     if self.check_distance(player_pos):
-        #         self.open_flag = True
-        # if keys[pygame.K_q]:
-        #     if self.check_distance(player_pos):
-        #         self.open_flag = False
-
         self.open_flag = self.check_distance(player_pos)
         if self.open_flag:
             self.show_menu()
 
     def check_distance(self, player_pos):
-        # if 460 <= ((player_pos[0] - self.pos[0]) ** 2 + (player_pos[1] - self.pos[0]) ** 2) ** 0.5 <= 505:
         if abs(self.pos[0] - 100 - player_pos[0]) < 250:
             return True
         else:
             return False
 
     def show_menu(self):
-        pygame.draw.rect(self.surface, (255, 255, 255), pygame.Rect(200, 200, 400, 200))
+        pygame.draw.rect(self.surface,
+                         (255, 255, 255),
+                         pygame.Rect(200, 200, 400, 200))
         speed, hp = self.get_upgrade_level()
         events = pygame.event.get()
         for event in events:

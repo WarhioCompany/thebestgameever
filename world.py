@@ -11,10 +11,17 @@ class World:
         self.setup()
         self.timer = 60
 
-
     def setup(self):
-        self.player = Player("game_player", (self.surface.get_size()[0] // 2, self.surface.get_size()[1] // 2), self.all_sprites, self.surface.get_size(), 5)
-        self.player_in_room = Player("human/0", (self.surface.get_size()[0] // 2, self.surface.get_size()[1] // 2), self.room_sprites, self.surface.get_size(), 8, True)
+        self.player = Player("game_player",
+                             (self.surface.get_size()[0] // 2, self.surface.get_size()[1] // 2),
+                             self.all_sprites,
+                             self.surface.get_size(),
+                             5)
+        self.player_in_room = Player("human/0",
+                                     (self.surface.get_size()[0] // 2, self.surface.get_size()[1] // 2),
+                                     self.room_sprites, self.surface.get_size(),
+                                     8,
+                                     True)
         self.shop = Shop((1270, 802.8))
 
     def create(self, t):
