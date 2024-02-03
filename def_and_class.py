@@ -6,10 +6,8 @@ import pygame
 import os
 import sys
 import random
-import sqlite3
+from db_manager import update_score_and_money
 
-con = sqlite3.connect('data/game.sqlite3')
-cur = con.cursor()
 
 screen = pygame.display.set_mode(size)
 clock = pygame.time.Clock()
@@ -21,80 +19,6 @@ font = pygame.font.Font(None, 20)
 
 def str_key(key):
     return str(key)[1]
-
-
-def change_score(delta_score):
-    score = list(cur.execute('SELECT * FROM player_stats').fetchone())
-    score[0] += delta_score
-    cur.execute("""Delete from player_stats""")
-    cur.execute("""Insert into player_stats (
-                                                score, 
-                                                money, 
-                                                night, 
-                                                speed_level, 
-                                                hp_level) 
-                    values (?, ?, ?, ?, ?)""", score)
-
-
-def change_money(delta_money):
-    money = list(cur.execute('SELECT * FROM player_stats').fetchone())
-    money[1] += delta_money
-    cur.execute('Delete from player_stats')
-    cur.execute("""Insert into player_stats (
-                                                score, 
-                                                money, 
-                                                night, 
-                                                speed_level, 
-                                                hp_level) 
-                    values (?, ?, ?, ?, ?)""", money)
-
-
-class Keyboard:
-    current_word = ()
-    completed_length = 0
-    active_words = []
-
-    def __init__(self):
-        self.reset_word()
-        self.start_listener()
-
-    def start_listener(self):
-        listener = Listener(on_press=self.on_press)
-        listener.start()
-
-    def choose_active_word(self, key):
-        for pair in self.active_words:
-            word = pair[0]
-            if word[0] == str_key(key):
-                self.current_word = pair
-                self.completed_length = 0
-                print(f'{word} was chosen')
-                return word
-
-    def on_press(self, key):
-        word = self.current_word[0]
-        if not word:
-            word = self.choose_active_word(key)
-            if not word:
-                return
-
-        if str_key(key) == word[self.completed_length]:
-            self.completed_length += 1
-            print(f"{word[:self.completed_length]}")
-            if self.completed_length == len(word):
-                print("complete")
-                self.current_word[-1](word)
-                self.reset_word()
-
-    def reset_word(self):
-        if self.current_word:
-            self.active_words.remove(self.current_word)
-        self.current_word = ('', 0, None)
-        self.completed_length = 0
-
-    def set_active_words(self, words_and_distance):
-        # (word, distance_from_player_to_enemy, event)
-        self.active_words = sorted(words_and_distance, key=lambda a: a[1])
 
 
 def load_image(name, colorkey=None):
@@ -172,9 +96,29 @@ class Enemy(pygame.sprite.Sprite):
         b = (self.rect.y - player_pos[0]) ** 2
         self.distance = (a + b) ** 0.5
 
-    def update(self, player_pos, activ_word):
-        if self.tup == 0:
-            if abs(self.rect.x - player_pos[0]) > 50 or abs(self.rect.y - player_pos[1]) > 50:
+    def update(self, player, activ_word):
+        """
+        ⠄⠄⠄⠄⠄⠄⠄⠄⣀⣤⡴⠶⠟⠛⠛⠛⠛⠻⠶⢦⣤⣀⠄⠄⠄⠄⠄⠄⠄⠄
+        ⠄⠄⠄⠄⠄⣠⣴⡟⠋⠁⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠈⠙⢻⣦⣄⠄⠄⠄⠄⠄
+        ⠄⠄⠄⣠⡾⠋⠈⣿⣶⣄⠄⠄⠄⠄⠄⠄⠄⠄⠄⠄⣠⣶⣿⠁⠙⢷⣄⠄⠄⠄
+        ⠄⠄⣴⠏⠄⠄⠄⠸⣇⠉⠻⣦⣀⠄⠄⠄⠄⣀⣴⠟⠉⣸⠇⠄⠄⠄⠹⣦⠄⠄
+        ⠄⣼⠏⠄⠄⠄⠄⠄⢻⡆⠄⠄⠙⠷⣦⣴⠾⠋⠄⠄⢰⡟⠄⠄⠄⠄⠄⠹⣧⠄
+        ⢰⡏⠄⠄⠄⠄⠄⠄⠈⣷⠄⢀⣤⡾⠋⠙⢷⣤⡀⠄⣾⠁⠄⠄⠄⠄⠄⠄⢹⡆
+        ⣿⠁⠄⠄⠄⠄⠄⠄⠄⣸⣷⠛⠁⠄⠄⠄⠄⠈⠛⣾⣇⠄⠄⠄⠄⠄⠄⠄⠄⣿
+        ⣿⠄⠄⠄⠄⠄⣠⣴⠟⠉⢻⡄⠄ AYAYA ⠄⣾⡟⠉⠻⣦⣄⠄⠄⠄⠄⠄⣿
+        ⣿⡀⠄⢀⣴⠞⠋⠄⠄⠄⠈⣷⠄⠄⠄⠄⠄⠄⣾⠁⠄⠄⠄⠙⠳⣦⡀⠄⠄⣿
+        ⠸⣧⠾⠿⠷⠶⠶⠶⠶⠶⠶⢾⣷⠶⠶⠶⠶⣾⡷⠶⠶⠶⠶⠶⠶⠾⠿⠷⣼⠇
+        ⠄⢻⣆⠄⠄⠄⠄⠄⠄⠄⠄⠄⢿⡄⠄⠄⢠⡿⠄⠄⠄⠄⠄⠄⠄⠄⠄⣰⡟⠄
+        ⠄⠄⠻⣆⠄⠄⠄⠄⠄⠄⠄⠄⠘⣷⠄⠄⣾⠃⠄⠄⠄⠄⠄⠄⠄⠄⣰⠟⠄⠄
+        ⠄⠄⠄⠙⢷⣄⠄⠄⠄⠄⠄⠄⠄⢹⣇⣸⡏⠄⠄⠄⠄⠄⠄⠄⣠⡾⠋⠄⠄⠄
+        ⠄⠄⠄⠄⠄⠙⠳⣦⣄⡀⠄⠄⠄⠄⢿⡿⠄⠄⠄⠄⢀⣠⣴⠞⠋⠄⠄⠄⠄⠄
+        ⠄⠄⠄⠄⠄⠄⠄⠄⠉⠛⠳⠶⣦⣤⣼⣧⣤⣴⠶⠞⠛⠉⠄⠄⠄⠄⠄⠄⠄⠄
+        """
+        player_pos = player.pos
+        player_size = player.image.get_size()
+        if abs(self.rect.x - player_pos[0]) > player_size[0] - 50 or \
+                abs(self.rect.y - player_pos[1]) > player_size[0] - 50:
+            if self.tup == 0:
                 k_x = (abs(self.rect.x - player_pos[0]) /
                        ((abs(self.rect.x - player_pos[0]) + abs(self.rect.y - player_pos[1])) / 2))
                 k_y = (abs(self.rect.y - player_pos[1]) /
@@ -191,26 +135,28 @@ class Enemy(pygame.sprite.Sprite):
                 else:
                     self.rect.x += self.speed * k_x
                     self.rect.y += self.speed * k_y
-                self.distance = ((self.rect.x - player_pos[0]) ** 2 + (self.rect.y - player_pos[0]) ** 2) ** 0.5
-        elif self.tup == 1:
-            self.rect.x += self.speed
-        elif self.tup == 2:
-            self.rect.y -= self.speed
-        elif self.tup == 3:
-            self.rect.x -= self.speed
-        elif self.tup == 4:
-            self.rect.y += self.speed
-        if activ_word == self.name:
-            print(self.name + "qwerty")
+            elif self.tup == 1:
+                self.rect.x += self.speed
+            elif self.tup == 2:
+                self.rect.y -= self.speed
+            elif self.tup == 3:
+                self.rect.x -= self.speed
+            elif self.tup == 4:
+                self.rect.y += self.speed
+            elif self.tup == 6:
+                self.rect.x = 200
+                self.rect.y = 200
+        else:
+            print('hit')
+            player.hp -= 1
+            print(player.hp)
             self.kill()
-            print(-1)
-            change_score(self.score)
-            change_money(self.money)
-        a = (self.rect.x - player_pos[0]) ** 2
-        b = (self.rect.y - player_pos[0]) ** 2
-        self.distance = (a + b) ** 0.5
-        if self.rect[0] == 0:
-            print(self.tup)
+        keys = pygame.key.get_pressed()
+
+        if keys[pygame.key.key_code(self.name)]:
+            self.kill()
+            update_score_and_money(1)
+        self.distance = ((self.rect.x - player_pos[0]) ** 2 + (self.rect.y - player_pos[0]) ** 2) ** 0.5
 
 
 def generate(n, tup):

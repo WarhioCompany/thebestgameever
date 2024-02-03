@@ -1,5 +1,5 @@
 import pygame
-import sqlite3
+from db_manager import set_hp, set_speed, get_hp_level, get_speed_level
 from config_file.config_game import *
 
 
@@ -8,8 +8,6 @@ class Shop:
         self.pos = pos
         self.font = ARIAL_24
         self.font_50 = ARIAL_50
-        self.con = sqlite3.connect('data/game.sqlite3')
-        self.cur = self.con.cursor()
         self.surface = pygame.display.get_surface()
         self.progressbar = pygame.Rect(390, 285, 37, 20)
         self.open_flag = False
@@ -37,11 +35,11 @@ class Shop:
                 if event.key == pygame.K_1:
                     if hp + 1 <= 5:
                         hp += 1
-                        self.cur.execute(f"UPDATE player_stats SET hp_level={hp}")
+                        set_hp(hp)
                 if event.key == pygame.K_2:
                     if speed + 1 <= 5:
                         speed += 1
-                        self.cur.execute(f"UPDATE player_stats SET speed_level={speed}")
+                        set_speed(speed)
         text = self.font_50.render(f"Улучшения: ", True, (0, 0, 0))
         self.surface.blit(text, (230, 200))
         text = self.font.render(f"[1] Здоровье: {hp}/ 5 ", True, (0, 0, 0))
@@ -57,5 +55,4 @@ class Shop:
         pygame.display.flip()
 
     def get_upgrade_level(self):
-        levels = self.cur.execute('SELECT speed_level, hp_level FROM player_stats').fetchone()
-        return levels
+        return get_speed_level(), get_hp_level()

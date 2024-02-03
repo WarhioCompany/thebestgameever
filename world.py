@@ -16,7 +16,8 @@ class World:
                              (self.surface.get_size()[0] // 2, self.surface.get_size()[1] // 2),
                              self.all_sprites,
                              self.surface.get_size(),
-                             5)
+                             5,
+                             hp=3)
         self.player_in_room = Player("human/0",
                                      (self.surface.get_size()[0] // 2, self.surface.get_size()[1] // 2),
                                      self.room_sprites, self.surface.get_size(),

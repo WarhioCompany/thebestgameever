@@ -2,7 +2,7 @@ import pygame
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, skin, pos, group, screen_size, size_factor=1, restrict_vertical_movement=False):
+    def __init__(self, skin, pos, group, screen_size, size_factor=1, restrict_vertical_movement=False, hp=0):
         super().__init__(group)
         pygame.sprite.Sprite.__init__(self)
         self.original_image = pygame.image.load(f"data/images/{skin}.png").convert_alpha()
@@ -24,6 +24,8 @@ class Player(pygame.sprite.Sprite):
         self.restrict_vertical_movement = restrict_vertical_movement
 
         self.screen_size = screen_size
+
+        self.hp = hp
 
     def movement(self):
         keys = pygame.key.get_pressed()
