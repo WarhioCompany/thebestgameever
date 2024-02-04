@@ -39,7 +39,3 @@ class World:
         text_rect = text.get_rect()
         text_rect.center = (300, 200)
         self.surface.blit(text, text_rect)
-
-
-
-

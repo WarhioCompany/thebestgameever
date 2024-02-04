@@ -41,7 +41,7 @@ def get_money():
 
 
 def get_score():
-    return get('money')
+    return get('score')
 
 
 def get_speed_level():
@@ -52,22 +52,22 @@ def get_hp_level():
     return get('hp_level')
 
 
-def set(key, value):
+def set_value(key, value):
     sql = f'''UPDATE player_stats SET {key} = ?'''
     cur.execute(sql, (value,))
 
 
 def decrease_money(decrease_amount):
     money = get_money()
-    set('money', money - decrease_amount)
+    set_value('money', money - decrease_amount)
 
 
 def set_speed(value):
-    set('speed_level', value)
+    set_value('speed_level', value)
 
 
 def set_hp(value):
-    set('hp_level', value)
+    set_value('hp_level', value)
 
 
 def update_score_and_money(amount):
@@ -75,5 +75,3 @@ def update_score_and_money(amount):
     score = get_score()
     sql = '''UPDATE player_stats SET money = ?, score = ?'''
     cur.execute(sql, (money + amount, score + amount))
-
-

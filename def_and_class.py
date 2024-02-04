@@ -6,7 +6,7 @@ import pygame
 import os
 import sys
 import random
-from db_manager import update_score_and_money
+from db_manager import update_score_and_money, get_money
 
 
 screen = pygame.display.set_mode(size)
@@ -44,7 +44,6 @@ class Enemy(pygame.sprite.Sprite):
                  speed,
                  image_name,
                  score,
-                 money,
                  tup,
                  *group):
         super().__init__(*group)
@@ -52,7 +51,6 @@ class Enemy(pygame.sprite.Sprite):
         self.speed = speed
         self.name = name
         self.score = score
-        self.money = money
         self.tup = tup
         self.rect = self.image.get_rect()
         if self.tup == 0:
@@ -82,15 +80,15 @@ class Enemy(pygame.sprite.Sprite):
             self.tup = qwe
             if qwe == 1:
                 self.rect.x = random.randint(-2000, 0)
-                self.rect.y = random.randint(0, height)
+                self.rect.y = random.randint(100, height - 100)
             elif qwe == 2:
-                self.rect.x = random.randint(0, width)
+                self.rect.x = random.randint(100, width - 100)
                 self.rect.y = random.randint(height, height + 2000)
             elif qwe == 3:
                 self.rect.x = random.randint(width, width + 2000)
-                self.rect.y = random.randint(0, height)
+                self.rect.y = random.randint(100, height - 100)
             elif qwe == 4:
-                self.rect.x = random.randint(0, width)
+                self.rect.x = random.randint(100, width - 100)
                 self.rect.y = random.randint(-2000, 0)
         a = (self.rect.x - player_pos[0]) ** 2
         b = (self.rect.y - player_pos[0]) ** 2
@@ -155,7 +153,7 @@ class Enemy(pygame.sprite.Sprite):
 
         if keys[pygame.key.key_code(self.name)]:
             self.kill()
-            update_score_and_money(1)
+            update_score_and_money(self.score)
         self.distance = ((self.rect.x - player_pos[0]) ** 2 + (self.rect.y - player_pos[0]) ** 2) ** 0.5
 
 
@@ -164,31 +162,31 @@ def generate(n, tup):
     if tup == 0:
         let = random.choices(letters, k=n)
         for i in range(n):
-            Enemy((960, 540), let[i], 1,
-                  f"enemy/{let[i]}/tile000.png", 30, 15, tup, new_enemy)
+            Enemy((960, 540), let[i], random.randint(1, 5),
+                  f"enemy/{let[i]}/tile000.png", 10, tup, new_enemy)
     elif tup == 1:
         let = random.choices(letters, k=n)
         for i in range(n):
-            Enemy((960, 540), let[i], 3,
-                  f"enemy/{let[i]}/tile000.png", 30, 15, tup, new_enemy)
+            Enemy((960, 540), let[i], random.randint(1, 5),
+                  f"enemy/{let[i]}/tile000.png", 10, tup, new_enemy)
     elif tup == 2:
         let = random.choices(letters, k=n)
         for i in range(n):
-            Enemy((960, 540), let[i], 3,
-                  f"enemy/{let[i]}/tile000.png", 30, 15, tup, new_enemy)
+            Enemy((960, 540), let[i], random.randint(1, 5),
+                  f"enemy/{let[i]}/tile000.png", 10, tup, new_enemy)
     elif tup == 3:
         let = random.choices(letters, k=n)
         for i in range(n):
-            Enemy((960, 540), let[i], 3,
-                  f"enemy/{let[i]}/tile000.png", 30, 15, tup, new_enemy)
+            Enemy((960, 540), let[i], random.randint(1, 5),
+                  f"enemy/{let[i]}/tile000.png", 10, tup, new_enemy)
     elif tup == 4:
         let = random.choices(letters, k=n)
         for i in range(n):
-            Enemy((960, 540), let[i], 3,
-                  f"enemy/{let[i]}/tile000.png", 30, 15, tup, new_enemy)
+            Enemy((960, 540), let[i], random.randint(1, 5),
+                  f"enemy/{let[i]}/tile000.png", 10, tup, new_enemy)
     elif tup == 5:
         let = random.choices(letters, k=n)
         for i in range(n):
-            Enemy((960, 540), let[i], 3,
-                  f"enemy/{let[i]}/tile000.png", 30, 15, tup, new_enemy)
+            Enemy((960, 540), let[i], random.randint(1, 5),
+                  f"enemy/{let[i]}/tile000.png", 10, tup, new_enemy)
     return new_enemy

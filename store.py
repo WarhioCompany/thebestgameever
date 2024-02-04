@@ -1,5 +1,5 @@
 import pygame
-from db_manager import set_hp, set_speed, get_hp_level, get_speed_level
+from db_manager import set_hp, set_speed, get_hp_level, get_speed_level, decrease_money, get_money
 from config_file.config_game import *
 
 
@@ -34,12 +34,16 @@ class Shop:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_1:
                     if hp + 1 <= 5:
-                        hp += 1
-                        set_hp(hp)
+                        if get_money() - hp * 60 >= 0:
+                            decrease_money(hp * 60)
+                            hp += 1
+                            set_hp(hp)
                 if event.key == pygame.K_2:
                     if speed + 1 <= 5:
-                        speed += 1
-                        set_speed(speed)
+                        if get_money() - speed * 60 >= 0:
+                            decrease_money(speed * 60)
+                            speed += 1
+                            set_speed(speed)
         text = self.font_50.render(f"Улучшения: ", True, (0, 0, 0))
         self.surface.blit(text, (230, 200))
         text = self.font.render(f"[1] Здоровье: {hp}/ 5 ", True, (0, 0, 0))
